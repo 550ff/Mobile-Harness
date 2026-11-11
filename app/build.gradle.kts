@@ -127,6 +127,8 @@ android {
 
     buildTypes {
         debug {
+            // Keep CI/custom debug builds installable alongside the official app.
+            applicationIdSuffix = ".custom"
             buildConfigField(
                 "String",
                 "TEST_OPENROUTER_API_KEY",
