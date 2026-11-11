@@ -176,8 +176,6 @@ class ClaudeRuntimeBridge(
                 add("--verbose")
                 add("--model")
                 add(launch.environment["ANTHROPIC_MODEL"] ?: provider.model)
-                add("--max-turns")
-                add("25")
             }
             Log.d("ClaudeBridge", "Launching command: $command")
             val process = installer.process(
