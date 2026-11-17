@@ -1,11 +1,20 @@
 package com.jarves.mh.ui.components
 
+import androidx.compose.animation.animateFloatAsState
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitPointerEventScope
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.rememberInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -13,32 +22,40 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.rememberTextMeasurer
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DismissDirection
+import androidx.compose.material3.DismissValue
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
+import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
-import androidx.compose.material3.Typography
+import androidx.compose.material3.TooltipBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberInfiniteTransition
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.drawRoundRect
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jarves.mh.ui.theme.ElevationLg
 import com.jarves.mh.ui.theme.ElevationMd
 import com.jarves.mh.ui.theme.ElevationSm
 import com.jarves.mh.ui.theme.ElevationXl
@@ -61,7 +78,14 @@ import com.jarves.mh.ui.theme.SpaceXl
 import com.jarves.mh.ui.theme.SpaceXs
 import com.jarves.mh.ui.theme.Space2xl
 import com.jarves.mh.ui.theme.Space3xl
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.rememberDismissState
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Arrangement.spacedBy
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // GLASS CARD — subtle frosted surface with optional accent border
@@ -76,24 +100,21 @@ fun GlassCard(
     val colors = MaterialTheme.colorScheme
     val hasAccent = accentColor != Color.Unspecified
 
+    val cardElevation = when (elevation) {
+        1 -> ElevationSm
+        2 -> ElevationMd
+        3 -> ElevationXl
+        else -> 0.dp
+    }
+
     Card(
-        modifier = modifier
-            .fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = colors.surfaceVariant.copy(alpha = 0.92f),
-            // Transparent by default, only show accent border when specified
             containerColor = if (hasAccent) colors.surfaceVariant.copy(alpha = 0.92f) else colors.surfaceVariant.copy(alpha = 0.88f),
         ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = when (elevation) {
-                1 -> ElevationSm
-                2 -> ElevationMd
-                3 -> ElevationXl
-                else -> 0.dp
-            }
-        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = cardElevation),
         shape = RoundedCornerShape(RadiusLg),
-        border = if (hasAccent) BorderStroke(1.dp, accentColor) else BorderStroke(1.dp, colors.outlineVariant.copy(alpha = 0.4f))
+        border = if (hasAccent) androidx.compose.ui.graphics.BorderStroke(1.dp, accentColor) else androidx.compose.ui.graphics.BorderStroke(1.dp, colors.outlineVariant.copy(alpha = 0.4f))
     ) {
         content()
     }
@@ -117,19 +138,16 @@ fun AppCard(
         CardVariant.Glass -> colors.surfaceVariant.copy(alpha = 0.85f) to colors.outlineVariant.copy(alpha = 0.3f) to ElevationSm
     }
 
+    val interactionSource = if (onClick != null) rememberInteractionSource() else null
+
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .let { if (onClick != null) it.then(
-                androidx.compose.foundation.interaction.MutableInteractionSource()
-            ) else it },
+        modifier = modifier.fillMaxWidth(),
         onClick = onClick,
-        colors = CardDefaults.cardColors(
-            containerColor = containerColor,
-        ),
+        interactionSource = interactionSource,
+        colors = CardDefaults.cardColors(containerColor = containerColor),
         elevation = CardDefaults.cardElevation(defaultElevation = elevation),
         shape = RoundedCornerShape(RadiusLg),
-        border = if (borderColor != Color.Unspecified) BorderStroke(1.dp, borderColor) else BorderStroke.Transparent
+        border = if (borderColor != Color.Unspecified) androidx.compose.ui.graphics.BorderStroke(1.dp, borderColor) else androidx.compose.ui.graphics.BorderStroke.Transparent
     ) {
         content()
     }
@@ -147,9 +165,7 @@ fun AppSectionTitle(
     action: (@Composable () -> Unit)? = null,
 ) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(bottom = SpaceSm),
+        modifier = modifier.fillMaxWidth().padding(bottom = SpaceSm),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -157,6 +173,10 @@ fun AppSectionTitle(
             text = text,
             style = MaterialTheme.typography.titleMedium?.copy(
                 fontWeight = FontWeight.Bold,
+                letterSpacing = 0.2.sp
+            ) ?: TextStyle(
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
                 letterSpacing = 0.2.sp
             ),
             color = MaterialTheme.colorScheme.onSurface
@@ -218,8 +238,7 @@ fun AppDivider(
     thickness: Int = 1,
 ) {
     Divider(
-        modifier = modifier
-            .fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
         thickness = thickness.dp
     )
@@ -241,30 +260,32 @@ fun EmptyState(
             .fillMaxWidth()
             .padding(horizontal = Space2xl, vertical = Space3xl),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        verticalArrangement = Arrangement.Center
     ) {
         icon()
-        androidx.compose.foundation.layout.Spacer(modifier = Modifier.padding(top = SpaceLg))
+        Spacer(modifier = Modifier.padding(top = SpaceLg))
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium?.copy(
                 fontWeight = FontWeight.Medium
+            ) ?: TextStyle(
+                fontWeight = FontWeight.Medium,
+                fontSize = 18.sp
             ),
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center
         )
         subtitle?.let { sub ->
-            androidx.compose.foundation.layout.Spacer(modifier = Modifier.padding(top = SpaceXs))
+            Spacer(modifier = Modifier.padding(top = SpaceXs))
             Text(
                 text = sub,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyMedium ?: TextStyle(fontSize = 14.sp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
         }
         action?.let { act ->
-            androidx.compose.foundation.layout.Spacer(modifier = Modifier.padding(top = SpaceLg))
+            Spacer(modifier = Modifier.padding(top = SpaceLg))
             act()
         }
     }
@@ -285,20 +306,25 @@ fun AppListRow(
 ) {
     val colors = MaterialTheme.colorScheme
 
+    val rowModifier = modifier
+        .fillMaxWidth()
+        .padding(horizontal = SpaceLg, vertical = SpaceMd)
+
+    val clickableModifier = if (onClick != null) {
+        rowModifier
+            .combinedClickable(onClick = onClick) { /* ripple handled */ }
+    } else {
+        rowModifier
+    }
+
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = SpaceLg, vertical = SpaceMd)
-            .let { if (onClick != null) it
-                .then(androidx.compose.foundation.interaction.MutableInteractionSource())
-                .combinedClickable(onClick = onClick) { /* ripple handled by combinedClickable */ }
-                else it },
+        modifier = clickableModifier,
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
             modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.spacedBy(SpaceMd),
+            horizontalArrangement = spacedBy(SpaceMd),
             verticalAlignment = Alignment.CenterVertically
         ) {
             leading?.invoke()
@@ -307,7 +333,7 @@ fun AppListRow(
                     text = title,
                     style = MaterialTheme.typography.bodyLarge?.copy(
                         fontWeight = FontWeight.Normal
-                    ),
+                    ) ?: TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Normal),
                     color = colors.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -315,7 +341,7 @@ fun AppListRow(
                 subtitle?.let { sub ->
                     Text(
                         text = sub,
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodySmall ?: TextStyle(fontSize = 12.sp),
                         color = colors.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -353,23 +379,13 @@ fun AppTopBar(
         verticalAlignment = Alignment.CenterVertically
     ) {
         leading?.invoke()
-        if (centerTitle) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge?.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        } else {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge?.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLarge?.copy(
+                fontWeight = FontWeight.Bold
+            ) ?: TextStyle(fontSize = 22.sp, fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.onSurface
+        )
         trailing?.invoke()
     }
 }
@@ -383,35 +399,29 @@ fun AppFab(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     backgroundColor: Color = PocketOrange,
-    contentColor: Color = PocketOrange.copy(alpha = 0f).let {
-        MaterialTheme.colorScheme.onPrimary
-    },
+    contentColor: Color = MaterialTheme.colorScheme.onPrimary,
     extended: Boolean = false,
     text: String? = null,
 ) {
-    val colors = MaterialTheme.colorScheme
-
     if (extended && text != null) {
-        androidx.compose.material3.ExtendedFloatingActionButton(
+        ExtendedFloatingActionButton(
             onClick = onClick,
-            modifier = modifier
-                .padding(bottom = SpaceLg, end = SpaceLg),
+            modifier = modifier.padding(bottom = SpaceLg, end = SpaceLg),
             icon = { icon() },
             text = { Text(text = text, fontWeight = FontWeight.Bold) },
             containerColor = backgroundColor,
-            contentColor = colors.onPrimary,
+            contentColor = contentColor,
             shape = RoundedCornerShape(RadiusPill.dp),
             elevation = androidx.compose.material3.FloatingActionButtonDefaults.extendedFabElevation(
                 defaultElevation = ElevationLg
             )
         )
     } else {
-        androidx.compose.material3.FloatingActionButton(
+        FloatingActionButton(
             onClick = onClick,
-            modifier = modifier
-                .padding(bottom = SpaceLg, end = SpaceLg),
+            modifier = modifier.padding(bottom = SpaceLg, end = SpaceLg),
             containerColor = backgroundColor,
-            contentColor = colors.onPrimary,
+            contentColor = contentColor,
             shape = RoundedCornerShape(RadiusPill.dp),
             elevation = androidx.compose.material3.FloatingActionButtonDefaults.fabElevation(
                 defaultElevation = ElevationLg
@@ -432,44 +442,30 @@ fun TooltipBox(
     content: @Composable () -> Unit,
 ) {
     var showTooltip by remember { mutableStateOf(false) }
+    val colors = MaterialTheme.colorScheme
 
     Box(modifier = modifier) {
         content()
-
-        if (showTooltip) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Transparent)
-                    .pointerInput(Unit) {
-                        awaitPointerEventScope {
-                            awaitFirstDown()
-                            showTooltip = false
-                        }
-                    }
-            ) {
-                androidx.compose.material3.TooltipBox(
-                    tooltip = {
-                        Box(
-                            modifier = Modifier
-                                .padding(SpaceMd)
-                                .background(
-                                    color = colors.surfaceContainerHighest.copy(alpha = 0.95f),
-                                    shape = RoundedCornerShape(RadiusSm)
-                                )
-                        ) {
-                            Text(
-                                text = tooltipText,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = colors.onSurfaceContainerHighest,
-                                maxLines = 3
-                            )
-                        }
-                    }
+        androidx.compose.material3.TooltipBox(
+            modifier = Modifier.fillMaxSize(),
+            tooltip = {
+                Box(
+                    modifier = Modifier.padding(SpaceMd)
+                        .background(
+                            color = colors.surfaceContainerHighest.copy(alpha = 0.95f),
+                            shape = RoundedCornerShape(RadiusSm)
+                        )
                 ) {
-                    // Trigger area
+                    Text(
+                        text = tooltipText,
+                        style = MaterialTheme.typography.bodySmall ?: TextStyle(fontSize = 12.sp),
+                        color = colors.onSurfaceContainerHighest,
+                        maxLines = 3
+                    )
                 }
             }
+        ) {
+            // Trigger area - empty, tooltip shows on long press by default
         }
     }
 }
@@ -488,13 +484,13 @@ fun AppChip(
 ) {
     val colors = MaterialTheme.colorScheme
 
-    androidx.compose.material3.FilterChip(
+    FilterChip(
         selected = selected,
         onClick = onClick,
         modifier = modifier,
         label = {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(SpaceXs),
+                horizontalArrangement = spacedBy(SpaceXs),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 leadingIcon?.invoke()
@@ -502,18 +498,17 @@ fun AppChip(
                     text = text,
                     style = MaterialTheme.typography.labelLarge?.copy(
                         fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
+                    ) ?: TextStyle(
+                        fontSize = 14.sp,
+                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
                     ),
                     color = if (selected) colors.onPrimaryContainer else colors.onSurfaceVariant
                 )
                 trailingIcon?.invoke()
             }
         },
-        containerColor = if (selected)
-            androidx.compose.material3.ChipDefaults.filterChipContainerColor(selected = true)
-        else
-            androidx.compose.material3.ChipDefaults.filterChipContainerColor(selected = false),
         shape = RoundedCornerShape(RadiusPill.dp),
-        border = if (!selected) BorderStroke(1.dp, colors.outlineVariant) else null
+        border = if (!selected) androidx.compose.ui.graphics.BorderStroke(1.dp, colors.outlineVariant) else null
     )
 }
 
@@ -526,7 +521,7 @@ fun LoadingIndicator(
     size: Int = 24,
     color: Color = PocketOrange,
 ) {
-    androidx.compose.material3.CircularProgressIndicator(
+    CircularProgressIndicator(
         modifier = modifier.size(size.dp),
         color = color,
         strokeWidth = 2.5.dp,
@@ -547,7 +542,7 @@ fun LoadingOverlay(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(SpaceMd)
+            verticalArrangement = spacedBy(SpaceMd)
         ) {
             LoadingIndicator(size = 36)
             message?.let { msg ->
@@ -555,7 +550,7 @@ fun LoadingOverlay(
                     text = msg,
                     style = MaterialTheme.typography.bodyLarge?.copy(
                         fontWeight = FontWeight.Medium
-                    ),
+                    ) ?: TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium),
                     color = Color.White
                 )
             }
@@ -577,9 +572,8 @@ fun SwipeToDismiss(
         confirmStateChange = { it == DismissValue.DismissedToStart || it == DismissValue.DismissedToEnd },
         onDismissed = { onDismiss() }
     )
-    val scope = rememberCoroutineScope()
 
-    androidx.compose.material3.SwipeToDismiss(
+    SwipeToDismiss(
         state = dismissState,
         directions = setOf(DismissDirection.StartToEnd, DismissDirection.EndToStart),
         dismissContent = { progress, direction ->
@@ -604,8 +598,8 @@ object AnimationSpecs {
     )
 
     val SpringDamping = androidx.compose.animation.core.spring(
-        dampingRatio = Spring.DampingRatioMediumBouncy,
-        stiffness = Spring.StiffnessMedium
+        dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
+        stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
     )
 
     val ExpandCollapse = androidx.compose.animation.core.tween(
@@ -625,15 +619,14 @@ fun ScreenScaffold(
     fab: (@Composable () -> Unit)? = null,
 ) {
     val scaffoldState = rememberScaffoldState()
-    val coroutineScope = rememberCoroutineScope()
 
-    androidx.compose.material3.Scaffold(
+    Scaffold(
         modifier = modifier,
         scaffoldState = scaffoldState,
         topBar = { topBar() },
         floatingActionButton = { fab?.invoke() },
         containerColor = MaterialTheme.colorScheme.background,
-        contentWindowInsets = androidx.compose.material3.ScaffoldDefaults.contentWindowInsets
+        contentWindowInsets = ScaffoldDefaults.contentWindowInsets
     ) { innerPadding ->
         content(innerPadding)
     }
