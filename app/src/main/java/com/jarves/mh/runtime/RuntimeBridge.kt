@@ -48,8 +48,14 @@ internal fun List<ChatMessage>.recentWithinCharacterBudget(maxCharacters: Int): 
 internal fun localServerPlaceholderKey(profile: ProviderProfile): String =
     if (profile.kind == com.jarves.mh.model.ProviderKind.CUSTOM) "no-key-required" else ""
 
+internal fun isFreeLlmApiEndpoint(baseUrl: String): Boolean = runCatching {
+    val uri = java.net.URI(baseUrl.trim())
+    uri.host != null && uri.port in setOf(3001, 31415)
+}.getOrDefault(false)
+
 object RuntimeLaunchConfigBuilder {
     fun build(profile: ProviderProfile, authToken: String? = null, localGatewayUrl: String? = null): RuntimeLaunchConfig {
+        val freeLlmApi = profile.kind == ProviderKind.CUSTOM && isFreeLlmApiEndpoint(profile.baseUrl)
         val environment = linkedMapOf(
             "DISABLE_AUTOUPDATER" to "1",
             // GitHub CLI is installed in the shared PRoot home. Keep authenticated Git
@@ -113,6 +119,20 @@ object RuntimeLaunchConfigBuilder {
                 } else {
                     environment["ANTHROPIC_API_KEY"] = authToken
                 }
+            }
+            if (freeLlmApi) {
+                // Keep the selected primary model, but route background work through the
+                // gateway's cheaper Claude alias instead of silently using the Opus model
+                // for every helper/sub-agent request.
+                environment["ANTHROPIC_DEFAULT_OPUS_MODEL"] = "claude-opus-latest"
+                environment["ANTHROPIC_DEFAULT_SONNET_MODEL"] = "claude-sonnet-latest"
+                environment["ANTHROPIC_DEFAULT_HAIKU_MODEL"] = "claude-haiku-latest"
+                environment["ANTHROPIC_SMALL_MODEL"] = "claude-haiku-latest"
+                environment["CLAUDE_CODE_SUBAGENT_MODEL"] = "claude-haiku-latest"
+                // FreeLLMAPI applies these request-side hints only when compression is
+                // enabled in its own settings; the server remains the authority.
+                environment["ANTHROPIC_CUSTOM_HEADERS"] =
+                    "X-FreeLLM-Compress: standard\nX-FreeLLM-Task-Type: code"
             }
         }
         return RuntimeLaunchConfig(
