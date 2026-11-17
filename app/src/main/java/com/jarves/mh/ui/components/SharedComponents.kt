@@ -1,6 +1,7 @@
 package com.jarves.mh.ui.components
 
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -216,7 +217,7 @@ fun StatusDot(
             initialValue = 1f,
             targetValue = 0.4f,
             animationSpec = infiniteRepeatable(
-                animation = tween(1000, easing = androidx.compose.animation.core.LinearEasing),
+                animation = tween<Float>(1000, easing = androidx.compose.animation.core.LinearEasing),
                 repeatMode = RepeatMode.Reverse
             ),
             label = "pulse"
