@@ -114,5 +114,5 @@
     <string name="st_use_custom_model_id">Use custom model ID:</string>
     <string name="st_use_freellmapi_preset">FreeLLMAPI preset</string>
     <string name="st_open_freellmapi">Open app</string>
-    <string name="st_freellmapi_connection_help">Use the unified FreeLLMAPI key. Termux uses port 3001 by default; for the Android app, enter the URL shown in its API Server screen. To use Opus 5.5, pin it under FreeLLMAPI → Keys → Anthropic model mapping → Opus; Harness uses the Claude family alias. Enable prompt compression in FreeLLMAPI settings.</string>
+    <string name="st_freellmapi_connection_help">Use the unified FreeLLMAPI key. Termux uses port 3001 by default; for the Android app, enter the URL shown in its API Server screen. To use Opus 5.5, pin it under FreeLLMAPI → Keys → Anthropic model mapping → Opus. Pin a small, efficient model to Haiku for cheaper sub-agents. Harness uses the Claude family aliases. Enable prompt compression in FreeLLMAPI settings.</string>
 </resources>
