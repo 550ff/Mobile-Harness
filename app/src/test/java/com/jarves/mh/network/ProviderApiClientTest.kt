@@ -45,7 +45,7 @@ class ProviderApiClientTest {
     }
 
     @Test
-    fun modelParserKeepsGatewaySpecificOpusIdsAndFreePricing() {
+    fun modelParserPreservesFullModelIdsAndPricingMetadata() {
         val models = ModelResponseParser.parse(
             """{"data":[{"id":"anthropic/claude-opus-5.5","display_name":"Claude Opus 5.5","pricing":{"prompt":"0","completion":"0"}}]}""",
         )
