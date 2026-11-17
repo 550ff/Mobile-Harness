@@ -3,10 +3,9 @@ package com.jarves.mh.ui.components
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.awaitPointerEventScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,7 +30,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipBox as M3TooltipBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -118,20 +117,42 @@ fun AppCard(
     content: @Composable () -> Unit,
 ) {
     val colors = MaterialTheme.colorScheme
-    val (containerColor, borderColor, elevation) = when (variant) {
-        CardVariant.Elevated -> colors.surface to Color.Unspecified to ElevationMd
-        CardVariant.Filled -> colors.surfaceVariant to Color.Unspecified to 0.dp
-        CardVariant.Outlined -> colors.surface to colors.outlineVariant to 0.dp
-        CardVariant.Glass -> colors.surfaceVariant.copy(alpha = 0.85f) to colors.outlineVariant.copy(alpha = 0.3f) to ElevationSm
+    val containerColor: Color
+    val borderColor: Color
+    val elevation: androidx.compose.ui.unit.Dp
+
+    when (variant) {
+        CardVariant.Elevated -> {
+            containerColor = colors.surface
+            borderColor = Color.Unspecified
+            elevation = ElevationMd
+        }
+        CardVariant.Filled -> {
+            containerColor = colors.surfaceVariant
+            borderColor = Color.Unspecified
+            elevation = 0.dp
+        }
+        CardVariant.Outlined -> {
+            containerColor = colors.surface
+            borderColor = colors.outlineVariant
+            elevation = 0.dp
+        }
+        CardVariant.Glass -> {
+            containerColor = colors.surfaceVariant.copy(alpha = 0.85f)
+            borderColor = colors.outlineVariant.copy(alpha = 0.3f)
+            elevation = ElevationSm
+        }
     }
 
+    val cardModifier = modifier.fillMaxWidth()
+        .let { if (onClick != null) it.clickable(onClick = onClick) else it }
+
     Card(
-        modifier = modifier.fillMaxWidth(),
-        onClick = onClick,
+        modifier = cardModifier,
         colors = CardDefaults.cardColors(containerColor = containerColor),
         elevation = CardDefaults.cardElevation(defaultElevation = elevation),
         shape = RoundedCornerShape(RadiusLg),
-        border = if (borderColor != Color.Unspecified) BorderStroke(1.dp, borderColor) else BorderStroke.Transparent
+        border = if (borderColor != Color.Unspecified) BorderStroke(1.dp, borderColor) else null
     ) {
         content()
     }
@@ -296,7 +317,7 @@ fun AppListRow(
 
     val clickableModifier = if (onClick != null) {
         rowModifier
-            .combinedClickable(onClick = onClick, onLongClick = null) { /* ripple handled */ }
+            .clickable(onClick = onClick)
     } else {
         rowModifier
     }
@@ -343,7 +364,7 @@ fun AppListRow(
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // APP TOP BAR — consistent top app bar
-// ══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
 @Composable
 fun AppTopBar(
     title: String,
@@ -396,9 +417,7 @@ fun AppFab(
             containerColor = backgroundColor,
             contentColor = contentColor,
             shape = RoundedCornerShape(RadiusPill.dp),
-            elevation = androidx.compose.material3.FloatingActionButtonDefaults.extendedFabElevation(
-                defaultElevation = ElevationLg
-            )
+            elevation = ElevationLg
         )
     } else {
         FloatingActionButton(
@@ -407,18 +426,16 @@ fun AppFab(
             containerColor = backgroundColor,
             contentColor = contentColor,
             shape = RoundedCornerShape(RadiusPill.dp),
-            elevation = androidx.compose.material3.FloatingActionButtonDefaults.fabElevation(
-                defaultElevation = ElevationLg
-            )
+            elevation = ElevationLg
         ) {
             icon()
         }
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
 // TOOLTIP — lightweight tooltip
-// ═══════════════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TooltipBox(
@@ -426,25 +443,24 @@ fun TooltipBox(
     tooltipText: String,
     content: @Composable () -> Unit,
 ) {
-    var showTooltip by remember { mutableStateOf(false) }
     val colors = MaterialTheme.colorScheme
 
     Box(modifier = modifier) {
         content()
-        TooltipBox(
+        M3TooltipBox(
             modifier = Modifier.fillMaxSize(),
             tooltip = {
                 Box(
                     modifier = Modifier.padding(SpaceMd)
                         .background(
-                            color = colors.surfaceContainerHighest.copy(alpha = 0.95f),
+                            color = colors.surfaceContainer.copy(alpha = 0.95f),
                             shape = RoundedCornerShape(RadiusSm)
                         )
                 ) {
                     Text(
                         text = tooltipText,
                         style = MaterialTheme.typography.bodySmall ?: TextStyle(fontSize = 12.sp),
-                        color = colors.onSurfaceContainerHighest,
+                        color = colors.onSurface,
                         maxLines = 3
                     )
                 }
@@ -455,9 +471,9 @@ fun TooltipBox(
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
 // CHIP — compact selectable/filter chip
-// ═══════════════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
 @Composable
 fun AppChip(
     text: String,
@@ -568,7 +584,7 @@ object AnimationSpecs {
     )
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
 // SCREEN SCAFFOLD — consistent screen structure
 // ══════════════════════════════════════════════════════════════════════════════
 @Composable
