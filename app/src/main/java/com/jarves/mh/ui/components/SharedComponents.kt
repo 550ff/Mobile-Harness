@@ -42,7 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.BorderStroke
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
@@ -581,22 +581,22 @@ fun LoadingOverlay(
 // ANIMATED VISIBILITY — shared animation specs
 // ═══════════════════════════════════════════════════════════════════════════════
 object AnimationSpecs {
-    val FadeInOut = androidx.compose.animation.core.tween(
+    val FadeInOut = androidx.compose.animation.core.tween<Float>(
         durationMillis = 200,
         easing = androidx.compose.animation.core.FastOutSlowInEasing
     )
 
-    val SlideUpDown = androidx.compose.animation.core.tween(
+    val SlideUpDown = androidx.compose.animation.core.tween<Float>(
         durationMillis = 300,
         easing = androidx.compose.animation.core.FastOutSlowInEasing
     )
 
-    val SpringDamping = androidx.compose.animation.core.spring(
+    val SpringDamping = androidx.compose.animation.core.spring<Float>(
         dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
         stiffness = androidx.compose.animation.core.Spring.StiffnessMedium
     )
 
-    val ExpandCollapse = androidx.compose.animation.core.tween(
+    val ExpandCollapse = androidx.compose.animation.core.tween<Float>(
         durationMillis = 250,
         easing = androidx.compose.animation.core.FastOutSlowInEasing
     )
