@@ -867,6 +867,7 @@ private fun ConnectionSettings(
     onValidate: () -> Unit,
 ) {
     val visibleKinds = remember(state.agentKind) { providersForAgent(state.agentKind) }
+    val context = LocalContext.current
     var providerExpanded by rememberSaveable { mutableStateOf(false) }
     var addKeyExpanded by rememberSaveable(savedKeys.isEmpty()) { mutableStateOf(savedKeys.isEmpty()) }
     Surface(color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f), shape = RoundedCornerShape(14.dp)) {
@@ -934,6 +935,40 @@ private fun ConnectionSettings(
         }
     }
 
+    if (selectedKind == ProviderKind.CUSTOM) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            OutlinedButton(
+                onClick = {
+                    onBaseUrl("http://127.0.0.1:3001")
+                    onModel("claude-sonnet-latest")
+                },
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(stringResource(R.string.st_use_freellmapi_preset), maxLines = 1)
+            }
+            TextButton(
+                onClick = {
+                    val launch = context.packageManager.getLaunchIntentForPackage("co.freellmapi.app")
+                    val intent = launch ?: Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse("https://play.google.com/store/apps/details?id=co.freellmapi.app"),
+                    )
+                    runCatching { context.startActivity(intent) }
+                },
+            ) {
+                Text(stringResource(R.string.st_open_freellmapi))
+            }
+        }
+        Text(
+            stringResource(R.string.st_freellmapi_connection_help),
+            fontSize = 11.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
     if (selectedKind.fixedBaseUrl) {
         Text(
             selectedKind.defaultBaseUrl,
