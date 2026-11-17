@@ -196,7 +196,11 @@ class ProviderApiClient(private val context: Context? = null) {
                 }
                 if (apiKey.isNotBlank() && protocol != ProviderProtocol.OPENROUTER && protocol != ProviderProtocol.OPENAI_CHAT && protocol != ProviderProtocol.OPENAI_RESPONSES) {
                     setRequestProperty("x-api-key", apiKey)
-                    setRequestProperty("anthropic-version", "2023-06-01")
+                    // FreeLLMAPI content-negotiates /v1/models: without this header it
+                    // returns its richer OpenAI catalog (including pricing metadata).
+                    if (!(method == "GET" && isFreeLlmApiCatalogEndpoint(endpoint))) {
+                        setRequestProperty("anthropic-version", "2023-06-01")
+                    }
                 }
                 if (body != null) doOutput = true
             }
@@ -217,6 +221,10 @@ class ProviderApiClient(private val context: Context? = null) {
             HttpResult(code, responseBody)
         }.getOrElse { HttpResult(0, "", it.message ?: text(R.string.rt_api_network_failed, "Network connection failed")) }
     }
+
+    private fun isFreeLlmApiCatalogEndpoint(endpoint: String): Boolean = runCatching {
+        URL(endpoint).port in setOf(3001, 31415)
+    }.getOrDefault(false)
 
     private fun modelEndpoints(baseUrl: String, protocol: ProviderProtocol): List<String> {
         val base = baseUrl.trim().trimEnd('/')
