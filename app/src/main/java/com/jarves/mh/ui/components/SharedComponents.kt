@@ -1,10 +1,9 @@
 package com.jarves.mh.ui.components
 
-import androidx.compose.animation.animateFloatAsState
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.rememberInfiniteTransition
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -35,6 +34,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox as M3TooltipBox
 import androidx.compose.material3.TooltipState
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -230,7 +231,7 @@ fun StatusDot(
             .graphicsLayer {
                 alpha = pulseAlpha
             }
-            .clip(RoundedCornerShape(RadiusPill.dp))
+            .clip(RoundedCornerShape(RadiusPill))
             .background(color)
     )
 }
@@ -429,8 +430,8 @@ fun AppFab(
             text = { Text(text = text, fontWeight = FontWeight.Bold) },
             containerColor = backgroundColor,
             contentColor = contentColor,
-            shape = RoundedCornerShape(RadiusPill.dp),
-            elevation = FloatingActionButtonDefaults.extendedFabElevation(
+            shape = RoundedCornerShape(RadiusPill),
+            elevation = FloatingActionButtonDefaults.elevation(
                 defaultElevation = ElevationLg
             )
         )
@@ -440,8 +441,8 @@ fun AppFab(
             modifier = modifier.padding(bottom = SpaceLg, end = SpaceLg),
             containerColor = backgroundColor,
             contentColor = contentColor,
-            shape = RoundedCornerShape(RadiusPill.dp),
-            elevation = FloatingActionButtonDefaults.fabElevation(
+            shape = RoundedCornerShape(RadiusPill),
+            elevation = FloatingActionButtonDefaults.elevation(
                 defaultElevation = ElevationLg
             )
         ) {
@@ -467,6 +468,7 @@ fun TooltipBox(
         M3TooltipBox(
             modifier = Modifier.fillMaxSize(),
             state = tooltipState,
+            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
             tooltip = {
                 Box(
                     modifier = Modifier.padding(SpaceMd)
@@ -526,7 +528,7 @@ fun AppChip(
                 trailingIcon?.invoke()
             }
         },
-        shape = RoundedCornerShape(RadiusPill.dp),
+        shape = RoundedCornerShape(RadiusPill),
         border = if (!selected) BorderStroke(1.dp, colors.outlineVariant) else null
     )
 }

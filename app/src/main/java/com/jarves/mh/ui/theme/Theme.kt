@@ -117,7 +117,6 @@ private val LightColors = lightColorScheme(
     outlineVariant = Color(0xFFD8DEE4),
 
     scrim = Color(0xFF000000),
-    shadow = Color(0xFF000000),
     inverseSurface = Color(0xFF1A1D21),
     inverseOnSurface = Color(0xFFF7F9FC),
     inversePrimary = Color(0xFFF28C52),
