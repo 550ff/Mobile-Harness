@@ -947,7 +947,7 @@ private fun ConnectionSettings(
             OutlinedButton(
                 onClick = {
                     onBaseUrl("http://127.0.0.1:3001")
-                    onModel("claude-sonnet-latest")
+                    onModel("claude-sonnet-4-5")
                 },
                 modifier = Modifier.weight(1f),
             ) {
