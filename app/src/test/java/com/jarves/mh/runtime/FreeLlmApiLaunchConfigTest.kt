@@ -22,13 +22,13 @@ class FreeLlmApiLaunchConfigTest {
         val profile = ProviderProfile(
             kind = ProviderKind.CUSTOM,
             baseUrl = "http://127.0.0.1:3001",
-            model = "claude-opus-5.5",
+            model = "claude-opus-4-5",
         )
 
         val launch = RuntimeLaunchConfigBuilder.build(profile, authToken = "freellmapi-test-key")
         val env = launch.environment
 
-        assertEquals("claude-opus-5.5", env["ANTHROPIC_MODEL"])
+        assertEquals("claude-opus-4-5", env["ANTHROPIC_MODEL"])
         assertEquals("claude-opus-4-5", env["ANTHROPIC_DEFAULT_OPUS_MODEL"])
         assertEquals("claude-sonnet-4-5", env["ANTHROPIC_DEFAULT_SONNET_MODEL"])
         assertEquals("claude-haiku-4-5", env["ANTHROPIC_DEFAULT_HAIKU_MODEL"])
