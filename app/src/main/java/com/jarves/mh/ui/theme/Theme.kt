@@ -11,13 +11,39 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
+// ── Brand accent ────────────────────────────────────────────────────────────
 val PocketOrange = Color(0xFFF28C52)
+val PocketOrangeDeep = Color(0xFFD97734)
 val PocketBlue = Color(0xFF8EA8FF)
 val PocketGreen = Color(0xFF69D69E)
 val PocketBackground = Color(0xFF0B0E14)
 val PocketSurface = Color(0xFF131821)
 val PocketSurfaceVariant = Color(0xFF1B222D)
 val PocketOutline = Color(0xFF2A3240)
+
+// ── Elevation tokens ────────────────────────────────────────────────────────
+// The app's surfaces don't use M3 surfaceContainer* (they fall back to a
+// lavender tint), so we expose explicit tonal values for cards and sheets.
+val ElevationSm = 1.dp
+val ElevationMd = 2.dp
+val ElevationLg = 4.dp
+val ElevationXl = 8.dp
+
+// ── Corner-radius tokens ────────────────────────────────────────────────────
+val RadiusSm = 12.dp
+val RadiusMd = 16.dp
+val RadiusLg = 20.dp
+val RadiusXl = 26.dp
+val RadiusPill = 50
+
+// ── Spacing tokens ──────────────────────────────────────────────────────────
+val SpaceXs = 4.dp
+val SpaceSm = 8.dp
+val SpaceMd = 12.dp
+val SpaceLg = 16.dp
+val SpaceXl = 20.dp
+val Space2xl = 24.dp
+val Space3xl = 32.dp
 
 private val DarkColors = darkColorScheme(
     primary = PocketOrange,
