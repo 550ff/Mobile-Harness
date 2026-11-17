@@ -3642,51 +3642,231 @@ private fun ProjectsScreen(
         LazyColumn(
             state = listState,
             modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(18.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(horizontal = SpaceLg, vertical = SpaceMd),
+            verticalArrangement = Arrangement.spacedBy(SpaceLg),
         ) {
             item {
-                Text(stringResource(R.string.projects_hero_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-                Text(stringResource(R.string.projects_hero_desc), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Spacer(Modifier.height(16.dp))
+                // Hero section
+                Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(SpaceSm)) {
+                    Text(
+                        stringResource(R.string.projects_hero_title),
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        stringResource(R.string.projects_hero_desc),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                }
+
+                // Primary actions row
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(SpaceMd),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Button(
                         onClick = onCreateQuickProject,
-                        modifier = Modifier.weight(1f).height(48.dp),
-                        shape = RoundedCornerShape(14.dp),
-                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
+                        modifier = Modifier.weight(1f).height(52.dp),
+                        shape = RoundedCornerShape(RadiusXl),
+                        contentPadding = PaddingValues(horizontal = SpaceLg),
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Chat,
-                            contentDescription = null,
-                            modifier = Modifier.size(17.dp),
-                        )
-                        Spacer(Modifier.width(6.dp))
-                        Text(
-                            text = stringResource(R.string.projects_quick_project),
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 13.sp,
-                            maxLines = 1,
-                            softWrap = false,
-                        )
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(SpaceSm),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(Icons.Default.Chat, contentDescription = null, modifier = Modifier.size(20.dp))
+                            Text(
+                                text = stringResource(R.string.projects_quick_project),
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 14.sp,
+                                maxLines = 1,
+                                softWrap = false,
+                            )
+                        }
                     }
                     OutlinedButton(
                         onClick = { showCreate = true },
-                        modifier = Modifier.weight(1f).height(48.dp),
-                        shape = RoundedCornerShape(14.dp),
-                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
+                        modifier = Modifier.weight(1f).height(52.dp),
+                        shape = RoundedCornerShape(RadiusXl),
+                        contentPadding = PaddingValues(horizontal = SpaceLg),
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp),
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(SpaceSm),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(20.dp))
+                            Text(
+                                text = stringResource(R.string.projects_new_project),
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 14.sp,
+                                maxLines = 1,
+                                softWrap = false,
+                            )
+                        }
+                    }
+                }
+
+                // Import existing section
+                val isImportExpanded = importExpanded || state.projectImporting || state.gitCloneRunning
+                AppCard(variant = CardVariant.Filled, onClick = { importExpanded = !importExpanded }) {
+                    Column(Modifier.fillMaxWidth().padding(SpaceLg), verticalArrangement = Arrangement.spacedBy(SpaceMd)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            Column {
+                                Text(
+                                    stringResource(R.string.projects_bring_existing),
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    style = MaterialTheme.typography.labelLarge,
+                                )
+                                Text(
+                                    stringResource(if (isImportExpanded) R.string.projects_import_expanded else R.string.projects_import_sources),
+                                    fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MaterialTheme.typography.labelSmall,
+                                )
+                            }
+                            Icon(
+                                imageVector = if (isImportExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                contentDescription = if (isImportExpanded) stringResource(R.string.ws_collapse) else stringResource(R.string.ws_expand),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(20.dp),
+                            )
+                        }
+                        AnimatedVisibility(visible = isImportExpanded) {
+                            Column(
+                                modifier = Modifier.fillMaxWidth().padding(top = SpaceXs),
+                                verticalArrangement = Arrangement.spacedBy(SpaceMd),
+                            ) {
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(SpaceMd)) {
+                                    ImportSourceButton(
+                                        icon = Icons.Default.Download,
+                                        title = stringResource(if (state.projectImporting) R.string.projects_importing else R.string.projects_zip_file),
+                                        enabled = !state.projectImporting && !state.gitCloneRunning,
+                                        modifier = Modifier.weight(1f).height(48.dp),
+                                        onClick = { importZipLauncher.launch("*/*") },
+                                        loading = state.projectImporting,
+                                    )
+                                    ImportSourceButton(
+                                        icon = Icons.Default.Code,
+                                        title = stringResource(if (state.gitCloneRunning) R.string.projects_cloning else R.string.projects_git_url),
+                                        enabled = !state.projectImporting && !state.gitCloneRunning,
+                                        modifier = Modifier.weight(1f).height(48.dp),
+                                        onClick = { showGitDialog = true },
+                                        loading = state.gitCloneRunning,
+                                    )
+                                }
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth()
+                                        .clickable(enabled = !state.gitCloneRunning) {
+                                            showGitHubDialog = true
+                                            if (state.githubAuthStatus == GitHubAuthStatus.CONNECTED && state.githubRepositories.isEmpty()) onRefreshGitHub()
+                                        }
+                                        .padding(top = SpaceXs),
+                                    color = MaterialTheme.colorScheme.surface,
+                                    shape = RoundedCornerShape(RadiusLg),
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                                ) {
+                                    Row(Modifier.padding(SpaceLg), verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(Icons.Default.Code, null, tint = PocketOrange, modifier = Modifier.size(20.dp))
+                                        Spacer(Modifier.width(SpaceMd))
+                                        Column(Modifier.weight(1f)) {
+                                            Text(
+                                                state.githubLogin?.let { stringResource(R.string.projects_github_account, it) } ?: stringResource(R.string.projects_connect_github),
+                                                fontSize = 13.sp,
+                                                fontWeight = FontWeight.SemiBold,
+                                            )
+                                            Text(
+                                                stringResource(if (state.githubLogin != null) R.string.projects_browse_repositories else R.string.projects_sign_in_repositories),
+                                                fontSize = 11.sp,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            )
+                                        }
+                                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
+                                (state.projectImportMessage ?: state.gitCloneMessage)?.let { message ->
+                                    Text(message, fontSize = 11.sp, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelSmall)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            state.appUpdate?.let { update ->
+                item {
+                    AppCard(variant = CardVariant.Outlined) {
+                        Row(Modifier.fillMaxWidth().padding(SpaceLg).clickable { showUpdateDialog = true }, verticalAlignment = Alignment.CenterVertically) {
+                            Surface(shape = CircleShape, color = PocketOrange.copy(alpha = 0.18f), modifier = Modifier.size(48.dp)) {
+                                Box(contentAlignment = Alignment.Center) { Icon(Icons.Default.Download, null, tint = PocketOrange, modifier = Modifier.size(24.dp)) }
+                            }
+                            Spacer(Modifier.width(SpaceMd))
+                            Column(Modifier.weight(1f)) {
+                                Text("Mobile Harness ${update.versionName}", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                                Text(stringResource(R.string.ws_update_ready), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+                            }
+                            Text(stringResource(R.string.ws_update), color = PocketOrange, fontWeight = FontWeight.Bold, fontSize = 13.sp, style = MaterialTheme.typography.labelLarge)
+                        }
+                    }
+                }
+            }
+            item {
+                // Section header
+                Text(stringResource(R.string.projects_your_projects), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            }
+            if (projects.isEmpty()) {
+                item {
+                    AppCard(variant = CardVariant.Filled) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth().padding(Space3xl),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(SpaceMd),
+                        ) {
+                            Surface(shape = CircleShape, color = PocketOrange.copy(alpha = 0.15f), modifier = Modifier.size(64.dp)) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(Icons.Default.Folder, contentDescription = null, tint = PocketOrange, modifier = Modifier.size(32.dp))
+                                }
+                            }
+                            Spacer(Modifier.height(SpaceXs))
+                            Text(
+                                stringResource(R.string.projects_empty_title),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center,
+                            )
+                            Text(
+                                stringResource(R.string.projects_empty_desc),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center,
+                                lineHeight = 20.sp,
+                            )
+                        }
+                    }
+                }
+            } else {
+                items(projects, key = { it.id }) { project ->
+                    item {
+                        ProjectCard(
+                            project = project,
+                            taskRunning = state.isRunning && state.activeProject?.id == project.id,
+                            terminalRunning = state.projectTerminalRunning && state.activeProject?.id == project.id,
+                            buildRunning = state.androidBuildRunning && state.activeProject?.id == project.id,
+                            onOpen = { onOpen(project) },
+                            onRename = { onRenameProject(project.id, it) },
+                            onDelete = { onDeleteProject(project.id) },
                         )
-                        Spacer(Modifier.width(6.dp))
-                        Text(
+                    }
+                }
+            }
+        }
+    }
+    // Dialogs unchanged...
                             text = stringResource(R.string.projects_new_project),
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 13.sp,
@@ -3785,90 +3965,6 @@ private fun ProjectsScreen(
                         }
                     }
                 }
-            }
-            state.appUpdate?.let { update ->
-                item {
-                    Surface(
-                        modifier = Modifier.fillMaxWidth().clickable { showUpdateDialog = true },
-                        shape = RoundedCornerShape(20.dp),
-                        color = PocketOrange.copy(alpha = 0.11f),
-                        border = BorderStroke(1.dp, PocketOrange.copy(alpha = 0.45f)),
-                    ) {
-                        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Surface(shape = CircleShape, color = PocketOrange.copy(alpha = 0.18f), modifier = Modifier.size(46.dp)) {
-                                Box(contentAlignment = Alignment.Center) { Icon(Icons.Default.Download, null, tint = PocketOrange) }
-                            }
-                            Spacer(Modifier.width(12.dp))
-                            Column(Modifier.weight(1f)) {
-                                Text("Mobile Harness ${update.versionName}", fontWeight = FontWeight.Bold)
-                                Text(stringResource(R.string.ws_update_ready), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                            Text(stringResource(R.string.ws_update), color = PocketOrange, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                        }
-                    }
-                }
-            }
-            item { Text(stringResource(R.string.projects_your_projects), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold) }
-            if (projects.isEmpty()) {
-                item {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp),
-                        shape = RoundedCornerShape(18.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)),
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(28.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            Surface(
-                                shape = CircleShape,
-                                color = PocketOrange.copy(alpha = 0.15f),
-                                modifier = Modifier.size(56.dp),
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Icon(
-                                        Icons.Default.Folder,
-                                        contentDescription = null,
-                                        tint = PocketOrange,
-                                        modifier = Modifier.size(28.dp),
-                                    )
-                                }
-                            }
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                stringResource(R.string.projects_empty_title),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Center,
-                            )
-                            Text(
-                                stringResource(R.string.projects_empty_desc),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                textAlign = TextAlign.Center,
-                                lineHeight = 20.sp,
-                            )
-                        }
-                    }
-                }
-            } else {
-                items(projects, key = { it.id }) { project ->
-                    ProjectCard(
-                        project = project,
-                        taskRunning = state.isRunning && state.activeProject?.id == project.id,
-                        terminalRunning = state.projectTerminalRunning && state.activeProject?.id == project.id,
-                        buildRunning = state.androidBuildRunning && state.activeProject?.id == project.id,
-                        onOpen = { onOpen(project) },
-                        onRename = { onRenameProject(project.id, it) },
-                        onDelete = { onDeleteProject(project.id) },
-                    )
-                }
-            }
         }
     }
     if (showCreate) AlertDialog(

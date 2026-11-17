@@ -58,9 +58,6 @@ import com.jarves.mh.ui.theme.ElevationXl
 import com.jarves.mh.ui.theme.PocketGreen
 import com.jarves.mh.ui.theme.PocketOrange
 import com.jarves.mh.ui.theme.PocketOrangeDeep
-import com.jarves.mh.ui.theme.PocketOutline
-import com.jarves.mh.ui.theme.PocketSurface
-import com.jarves.mh.ui.theme.PocketSurfaceVariant
 import com.jarves.mh.ui.theme.RadiusLg
 import com.jarves.mh.ui.theme.RadiusMd
 import com.jarves.mh.ui.theme.RadiusPill
@@ -401,7 +398,7 @@ fun AppTopBar(
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // APP FAB — consistent floating action button
-// ══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
 @Composable
 fun AppFab(
     icon: @Composable () -> Unit,
@@ -441,9 +438,9 @@ fun AppFab(
     }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
 // TOOLTIP — lightweight tooltip
-// ══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TooltipBox(
@@ -481,7 +478,7 @@ fun TooltipBox(
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CHIP — compact selectable/filter chip
-// ══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
 @Composable
 fun AppChip(
     text: String,
@@ -523,7 +520,7 @@ fun AppChip(
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // LOADING INDICATOR — consistent loading states
-// ══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
 @Composable
 fun LoadingIndicator(
     modifier: Modifier = Modifier,
@@ -567,9 +564,9 @@ fun LoadingOverlay(
     }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
 // ANIMATED VISIBILITY — shared animation specs
-// ══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
 object AnimationSpecs {
     val FadeInOut = androidx.compose.animation.core.tween(
         durationMillis = 200,
@@ -594,7 +591,7 @@ object AnimationSpecs {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SCREEN SCAFFOLD — consistent screen structure
-// ══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
 @Composable
 fun ScreenScaffold(
     topBar: @Composable () -> Unit = {},
