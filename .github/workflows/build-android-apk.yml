@@ -3,6 +3,7 @@ name: Build Android APK
 on:
   push:
     branches:
+      - main
       - fix/remove-claude-task-turn-cap
   pull_request:
     branches:
