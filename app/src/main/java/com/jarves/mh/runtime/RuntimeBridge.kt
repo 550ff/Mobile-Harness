@@ -129,6 +129,7 @@ object RuntimeLaunchConfigBuilder {
                 environment["ANTHROPIC_DEFAULT_HAIKU_MODEL"] = "claude-haiku-latest"
                 environment["ANTHROPIC_SMALL_MODEL"] = "claude-haiku-latest"
                 environment["CLAUDE_CODE_SUBAGENT_MODEL"] = "claude-haiku-latest"
+                environment["CLAUDE_CODE_GATEWAY_MODEL_DISCOVERY_TIMEOUT_MS"] = "10000"
                 // FreeLLMAPI applies these request-side hints only when compression is
                 // enabled in its own settings; the server remains the authority.
                 environment["ANTHROPIC_CUSTOM_HEADERS"] =
