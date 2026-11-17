@@ -34,6 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox as M3TooltipBox
+import androidx.compose.material3.TooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,7 +44,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BorderStroke
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.GraphicsLayerModifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -75,9 +75,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.ui.unit.Dp
 
-// ═══════════════════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════════════════════
 // GLASS CARD — subtle frosted surface with optional accent border
-// ═══════════════════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════════════════════
 @Composable
 fun GlassCard(
     modifier: Modifier = Modifier,
@@ -108,9 +108,9 @@ fun GlassCard(
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════════════════════
 // APP CARD — consistent card wrapper used across screens
-// ═══════════════════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════════════════════
 @Composable
 fun AppCard(
     modifier: Modifier = Modifier,
@@ -162,7 +162,7 @@ fun AppCard(
 
 enum class CardVariant { Elevated, Filled, Outlined, Glass }
 
-// ═══════════════════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════════════════════
 // SECTION TITLE — consistent section headers
 // ═══════════════════════════════════════════════════════════════════════════════
 @Composable
@@ -449,11 +449,12 @@ fun TooltipBox(
     content: @Composable () -> Unit,
 ) {
     val colors = MaterialTheme.colorScheme
+    val tooltipState = remember { TooltipState() }
 
     Box(modifier = modifier) {
-        content()
         M3TooltipBox(
             modifier = Modifier.fillMaxSize(),
+            state = tooltipState,
             tooltip = {
                 Box(
                     modifier = Modifier.padding(SpaceMd)
@@ -471,7 +472,7 @@ fun TooltipBox(
                 }
             }
         ) {
-            // Trigger area
+            content()
         }
     }
 }
@@ -520,7 +521,7 @@ fun AppChip(
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // LOADING INDICATOR — consistent loading states
-// ═══════════════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
 @Composable
 fun LoadingIndicator(
     modifier: Modifier = Modifier,
