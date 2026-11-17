@@ -209,24 +209,26 @@ fun StatusDot(
         StatusState.Error -> Color.Red
     }
 
-    val infiniteTransition = rememberInfiniteTransition(label = "")
-    val pulseAlpha by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 0.4f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, delayMillis = 0, easing = androidx.compose.animation.core.LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulse"
-    )
+    val pulseAlpha = if (showPulse && state == StatusState.Connecting) {
+        val infiniteTransition = rememberInfiniteTransition(label = "connecting-status")
+        infiniteTransition.animateFloat(
+            initialValue = 1f,
+            targetValue = 0.4f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(1000, easing = androidx.compose.animation.core.LinearEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "pulse"
+        ).value
+    } else {
+        1f
+    }
 
     Box(
         modifier = modifier
             .size(size.dp)
             .graphicsLayer {
-                if (showPulse && state == StatusState.Connecting) {
-                    alpha = pulseAlpha
-                }
+                alpha = pulseAlpha
             }
             .clip(RoundedCornerShape(RadiusPill.dp))
             .background(color)
@@ -244,11 +246,21 @@ fun AppDivider(
     vertical: Boolean = false,
     thickness: Int = 1,
 ) {
-    Divider(
-        modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
-        thickness = thickness.dp
-    )
+    val dividerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.38f)
+    if (vertical) {
+        Box(
+            modifier = modifier
+                .width(thickness.dp)
+                .fillMaxSize()
+                .background(dividerColor)
+        )
+    } else {
+        Divider(
+            modifier = modifier.fillMaxWidth(),
+            color = dividerColor,
+            thickness = thickness.dp
+        )
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
