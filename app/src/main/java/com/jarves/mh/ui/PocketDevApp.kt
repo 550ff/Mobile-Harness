@@ -271,6 +271,8 @@ import com.jarves.mh.ui.theme.SpaceXs
 import com.jarves.mh.ui.theme.SpaceXl
 import com.jarves.mh.ui.theme.PocketGreen
 import com.jarves.mh.ui.theme.PocketOrange
+import com.jarves.mh.ui.theme.*
+import com.jarves.mh.ui.components.*
 import java.io.ByteArrayInputStream
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -3857,17 +3859,15 @@ private fun ProjectsScreen(
                 }
             } else {
                 items(projects, key = { it.id }) { project ->
-                    item {
-                        ProjectCard(
-                            project = project,
-                            taskRunning = state.isRunning && state.activeProject?.id == project.id,
-                            terminalRunning = state.projectTerminalRunning && state.activeProject?.id == project.id,
-                            buildRunning = state.androidBuildRunning && state.activeProject?.id == project.id,
-                            onOpen = { onOpen(project) },
-                            onRename = { onRenameProject(project.id, it) },
-                            onDelete = { onDeleteProject(project.id) },
-                        )
-                    }
+                    ProjectCard(
+                        project = project,
+                        taskRunning = state.isRunning && state.activeProject?.id == project.id,
+                        terminalRunning = state.projectTerminalRunning && state.activeProject?.id == project.id,
+                        buildRunning = state.androidBuildRunning && state.activeProject?.id == project.id,
+                        onOpen = { onOpen(project) },
+                        onRename = { onRenameProject(project.id, it) },
+                        onDelete = { onDeleteProject(project.id) },
+                    )
                 }
             }
         }
