@@ -1,6 +1,5 @@
 package com.jarves.mh.ui.components
 
-import androidx.compose.animation.animateFloatAsState
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
@@ -8,8 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitPointerEventScope
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.rememberInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,16 +23,13 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
-import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.DismissValue
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScaffoldDefaults
-import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
 import androidx.compose.runtime.Composable
@@ -46,9 +40,8 @@ import androidx.compose.runtime.rememberInfiniteTransition
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BorderStroke
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.drawRoundRect
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -59,7 +52,6 @@ import com.jarves.mh.ui.theme.ElevationLg
 import com.jarves.mh.ui.theme.ElevationMd
 import com.jarves.mh.ui.theme.ElevationSm
 import com.jarves.mh.ui.theme.ElevationXl
-import com.jarves.mh.ui.theme.PocketBackground
 import com.jarves.mh.ui.theme.PocketGreen
 import com.jarves.mh.ui.theme.PocketOrange
 import com.jarves.mh.ui.theme.PocketOrangeDeep
@@ -78,14 +70,9 @@ import com.jarves.mh.ui.theme.SpaceXl
 import com.jarves.mh.ui.theme.SpaceXs
 import com.jarves.mh.ui.theme.Space2xl
 import com.jarves.mh.ui.theme.Space3xl
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.material3.rememberDismissState
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Arrangement.spacedBy
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntSize
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // GLASS CARD — subtle frosted surface with optional accent border
@@ -114,7 +101,7 @@ fun GlassCard(
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = cardElevation),
         shape = RoundedCornerShape(RadiusLg),
-        border = if (hasAccent) androidx.compose.ui.graphics.BorderStroke(1.dp, accentColor) else androidx.compose.ui.graphics.BorderStroke(1.dp, colors.outlineVariant.copy(alpha = 0.4f))
+        border = if (hasAccent) BorderStroke(1.dp, accentColor) else BorderStroke(1.dp, colors.outlineVariant.copy(alpha = 0.4f))
     ) {
         content()
     }
@@ -138,16 +125,13 @@ fun AppCard(
         CardVariant.Glass -> colors.surfaceVariant.copy(alpha = 0.85f) to colors.outlineVariant.copy(alpha = 0.3f) to ElevationSm
     }
 
-    val interactionSource = if (onClick != null) rememberInteractionSource() else null
-
     Card(
         modifier = modifier.fillMaxWidth(),
         onClick = onClick,
-        interactionSource = interactionSource,
         colors = CardDefaults.cardColors(containerColor = containerColor),
         elevation = CardDefaults.cardElevation(defaultElevation = elevation),
         shape = RoundedCornerShape(RadiusLg),
-        border = if (borderColor != Color.Unspecified) androidx.compose.ui.graphics.BorderStroke(1.dp, borderColor) else androidx.compose.ui.graphics.BorderStroke.Transparent
+        border = if (borderColor != Color.Unspecified) BorderStroke(1.dp, borderColor) else BorderStroke.Transparent
     ) {
         content()
     }
@@ -260,7 +244,7 @@ fun EmptyState(
             .fillMaxWidth()
             .padding(horizontal = Space2xl, vertical = Space3xl),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
     ) {
         icon()
         Spacer(modifier = Modifier.padding(top = SpaceLg))
@@ -312,7 +296,7 @@ fun AppListRow(
 
     val clickableModifier = if (onClick != null) {
         rowModifier
-            .combinedClickable(onClick = onClick) { /* ripple handled */ }
+            .combinedClickable(onClick = onClick, onLongClick = null) { /* ripple handled */ }
     } else {
         rowModifier
     }
@@ -359,7 +343,7 @@ fun AppListRow(
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // APP TOP BAR — consistent top app bar
-// ═══════════════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
 @Composable
 fun AppTopBar(
     title: String,
@@ -392,7 +376,7 @@ fun AppTopBar(
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // APP FAB — consistent floating action button
-// ═══════════════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
 @Composable
 fun AppFab(
     icon: @Composable () -> Unit,
@@ -435,6 +419,7 @@ fun AppFab(
 // ═══════════════════════════════════════════════════════════════════════════════
 // TOOLTIP — lightweight tooltip
 // ═══════════════════════════════════════════════════════════════════════════════
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TooltipBox(
     modifier: Modifier = Modifier,
@@ -446,7 +431,7 @@ fun TooltipBox(
 
     Box(modifier = modifier) {
         content()
-        androidx.compose.material3.TooltipBox(
+        TooltipBox(
             modifier = Modifier.fillMaxSize(),
             tooltip = {
                 Box(
@@ -465,7 +450,7 @@ fun TooltipBox(
                 }
             }
         ) {
-            // Trigger area - empty, tooltip shows on long press by default
+            // Trigger area
         }
     }
 }
@@ -508,7 +493,7 @@ fun AppChip(
             }
         },
         shape = RoundedCornerShape(RadiusPill.dp),
-        border = if (!selected) androidx.compose.ui.graphics.BorderStroke(1.dp, colors.outlineVariant) else null
+        border = if (!selected) BorderStroke(1.dp, colors.outlineVariant) else null
     )
 }
 
@@ -559,33 +544,8 @@ fun LoadingOverlay(
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SWIPE TO DISMISS — swipeable list item
-// ═══════════════════════════════════════════════════════════════════════════════
-@Composable
-fun SwipeToDismiss(
-    modifier: Modifier = Modifier,
-    onDismiss: () -> Unit,
-    dismissContent: @Composable () -> Unit,
-    content: @Composable () -> Unit,
-) {
-    val dismissState = rememberDismissState(
-        confirmStateChange = { it == DismissValue.DismissedToStart || it == DismissValue.DismissedToEnd },
-        onDismissed = { onDismiss() }
-    )
-
-    SwipeToDismiss(
-        state = dismissState,
-        directions = setOf(DismissDirection.StartToEnd, DismissDirection.EndToStart),
-        dismissContent = { progress, direction ->
-            dismissContent()
-        },
-        content = { content() }
-    )
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
 // ANIMATED VISIBILITY — shared animation specs
-// ═══════════════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
 object AnimationSpecs {
     val FadeInOut = androidx.compose.animation.core.tween(
         durationMillis = 200,
@@ -610,7 +570,7 @@ object AnimationSpecs {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SCREEN SCAFFOLD — consistent screen structure
-// ═══════════════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
 @Composable
 fun ScreenScaffold(
     topBar: @Composable () -> Unit = {},
@@ -618,15 +578,12 @@ fun ScreenScaffold(
     modifier: Modifier = Modifier,
     fab: (@Composable () -> Unit)? = null,
 ) {
-    val scaffoldState = rememberScaffoldState()
-
     Scaffold(
         modifier = modifier,
-        scaffoldState = scaffoldState,
         topBar = { topBar() },
         floatingActionButton = { fab?.invoke() },
         containerColor = MaterialTheme.colorScheme.background,
-        contentWindowInsets = ScaffoldDefaults.contentWindowInsets
+        contentWindowInsets = androidx.compose.material3.ScaffoldDefaults.contentWindowInsets
     ) { innerPadding ->
         content(innerPadding)
     }
