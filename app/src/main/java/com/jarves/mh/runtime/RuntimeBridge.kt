@@ -47,7 +47,7 @@ internal fun List<ChatMessage>.recentWithinCharacterBudget(maxCharacters: Int): 
  * CLIs refuse to start without one. Send a harmless placeholder that such servers ignore.
  */
 internal fun localServerPlaceholderKey(profile: ProviderProfile): String =
-    if (profile.kind == com.jarves.mh.model.ProviderKind.CUSTOM) "no-key-required" else ""
+    if (profile.kind == ProviderKind.CUSTOM && !isFreeLlmApiEndpoint(profile.baseUrl)) "no-key-required" else ""
 
 internal fun isFreeLlmApiEndpoint(baseUrl: String): Boolean = runCatching {
     val uri = java.net.URI(baseUrl.trim())
