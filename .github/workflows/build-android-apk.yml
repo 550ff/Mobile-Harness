@@ -6,6 +6,7 @@ on:
       - main
       - fix/remove-claude-task-turn-cap
       - test/github-runtime-path-coverage
+      - redesign/glass-polish-and-audit
   pull_request:
     branches:
       - main
