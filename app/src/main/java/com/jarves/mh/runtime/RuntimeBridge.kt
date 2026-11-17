@@ -125,11 +125,11 @@ object RuntimeLaunchConfigBuilder {
                 // Keep the selected primary model, but route background work through the
                 // gateway's cheaper Claude alias instead of silently using the Opus model
                 // for every helper/sub-agent request.
-                environment["ANTHROPIC_DEFAULT_OPUS_MODEL"] = "claude-opus-latest"
-                environment["ANTHROPIC_DEFAULT_SONNET_MODEL"] = "claude-sonnet-latest"
-                environment["ANTHROPIC_DEFAULT_HAIKU_MODEL"] = "claude-haiku-latest"
-                environment["ANTHROPIC_SMALL_MODEL"] = "claude-haiku-latest"
-                environment["CLAUDE_CODE_SUBAGENT_MODEL"] = "claude-haiku-latest"
+                environment["ANTHROPIC_DEFAULT_OPUS_MODEL"] = "claude-opus-4-5"
+                environment["ANTHROPIC_DEFAULT_SONNET_MODEL"] = "claude-sonnet-4-5"
+                environment["ANTHROPIC_DEFAULT_HAIKU_MODEL"] = "claude-haiku-4-5"
+                environment["ANTHROPIC_SMALL_MODEL"] = "claude-haiku-4-5"
+                environment["CLAUDE_CODE_SUBAGENT_MODEL"] = "claude-haiku-4-5"
                 environment["CLAUDE_CODE_GATEWAY_MODEL_DISCOVERY_TIMEOUT_MS"] = "10000"
                 // FreeLLMAPI applies these request-side hints only when compression is
                 // enabled in its own settings; the server remains the authority.
