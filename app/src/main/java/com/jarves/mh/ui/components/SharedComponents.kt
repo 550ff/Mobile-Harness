@@ -1,11 +1,13 @@
 package com.jarves.mh.ui.components
 
+import androidx.compose.animation.animateFloatAsState
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.animateFloatAsState
+import androidx.compose.animation.rememberInfiniteTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +28,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -35,12 +38,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberInfiniteTransition
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BorderStroke
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.GraphicsLayerModifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -72,6 +76,7 @@ import com.jarves.mh.ui.theme.Space3xl
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Arrangement.spacedBy
+import androidx.compose.ui.unit.Dp
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // GLASS CARD — subtle frosted surface with optional accent border
@@ -119,7 +124,7 @@ fun AppCard(
     val colors = MaterialTheme.colorScheme
     val containerColor: Color
     val borderColor: Color
-    val elevation: androidx.compose.ui.unit.Dp
+    val elevation: Dp
 
     when (variant) {
         CardVariant.Elevated -> {
@@ -316,8 +321,7 @@ fun AppListRow(
         .padding(horizontal = SpaceLg, vertical = SpaceMd)
 
     val clickableModifier = if (onClick != null) {
-        rowModifier
-            .clickable(onClick = onClick)
+        rowModifier.clickable(onClick = onClick)
     } else {
         rowModifier
     }
@@ -417,7 +421,9 @@ fun AppFab(
             containerColor = backgroundColor,
             contentColor = contentColor,
             shape = RoundedCornerShape(RadiusPill.dp),
-            elevation = ElevationLg
+            elevation = FloatingActionButtonDefaults.extendedFabElevation(
+                defaultElevation = ElevationLg
+            )
         )
     } else {
         FloatingActionButton(
@@ -426,7 +432,9 @@ fun AppFab(
             containerColor = backgroundColor,
             contentColor = contentColor,
             shape = RoundedCornerShape(RadiusPill.dp),
-            elevation = ElevationLg
+            elevation = FloatingActionButtonDefaults.fabElevation(
+                defaultElevation = ElevationLg
+            )
         ) {
             icon()
         }
@@ -471,7 +479,7 @@ fun TooltipBox(
     }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
 // CHIP — compact selectable/filter chip
 // ══════════════════════════════════════════════════════════════════════════════
 @Composable
@@ -515,7 +523,7 @@ fun AppChip(
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // LOADING INDICATOR — consistent loading states
-// ═══════════════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
 @Composable
 fun LoadingIndicator(
     modifier: Modifier = Modifier,
@@ -559,7 +567,7 @@ fun LoadingOverlay(
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
 // ANIMATED VISIBILITY — shared animation specs
 // ══════════════════════════════════════════════════════════════════════════════
 object AnimationSpecs {
@@ -584,7 +592,7 @@ object AnimationSpecs {
     )
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
 // SCREEN SCAFFOLD — consistent screen structure
 // ══════════════════════════════════════════════════════════════════════════════
 @Composable
