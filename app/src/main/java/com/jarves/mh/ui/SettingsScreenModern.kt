@@ -872,15 +872,7 @@ private fun ConnectionSettings(
     var providerExpanded by rememberSaveable { mutableStateOf(false) }
     var addKeyExpanded by rememberSaveable(savedKeys.isEmpty()) { mutableStateOf(savedKeys.isEmpty()) }
     var showModelPicker by rememberSaveable { mutableStateOf(false) }
-    var requestedModelDiscovery by remember { mutableStateOf(false) }
     var modelSearch by rememberSaveable { mutableStateOf("") }
-
-    LaunchedEffect(isDiscovering, models) {
-        if (requestedModelDiscovery && !isDiscovering) {
-            showModelPicker = models.isNotEmpty()
-            requestedModelDiscovery = false
-        }
-    }
     Surface(color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f), shape = RoundedCornerShape(14.dp)) {
         Row(Modifier.fillMaxWidth().padding(13.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.size(8.dp).background(
@@ -1012,11 +1004,7 @@ private fun ConnectionSettings(
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
         OutlinedButton(
             onClick = {
-                if (models.isNotEmpty()) showModelPicker = true
-                else {
-                    requestedModelDiscovery = true
-                    onModels()
-                }
+                if (models.isNotEmpty()) showModelPicker = true else onModels()
             },
             enabled = baseUrl.isNotBlank() && apiKey.isNotBlank() && !isDiscovering,
             modifier = Modifier.weight(1f).height(50.dp),
@@ -1026,7 +1014,7 @@ private fun ConnectionSettings(
             Spacer(Modifier.width(7.dp))
             Text(if (models.isEmpty()) stringResource(R.string.provider_find_models) else stringResource(R.string.provider_available_models_count, models.size))
         }
-        IconButton(onClick = { requestedModelDiscovery = true; onModels() }, enabled = baseUrl.isNotBlank() && apiKey.isNotBlank() && !isDiscovering) {
+        IconButton(onClick = onModels, enabled = baseUrl.isNotBlank() && apiKey.isNotBlank() && !isDiscovering) {
             Icon(Icons.Default.Refresh, stringResource(R.string.provider_refresh_models))
         }
     }
