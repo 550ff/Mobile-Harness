@@ -54,6 +54,16 @@ internal fun isFreeLlmApiEndpoint(baseUrl: String): Boolean = runCatching {
     uri.host != null && uri.port in setOf(3001, 31415)
 }.getOrDefault(false)
 
+/** Only the in-app loopback instance is auto-started; LAN/Termux gateways stay user-managed. */
+internal fun isEmbeddedFreeLlmApiEndpoint(baseUrl: String): Boolean = runCatching {
+    val uri = java.net.URI(baseUrl.trim())
+    val host = uri.host?.lowercase()?.removePrefix("[")?.removeSuffix("]")
+    uri.scheme.equals("http", ignoreCase = true) &&
+        host in setOf("localhost", "127.0.0.1", "::1") &&
+        uri.port == 3001 &&
+        uri.path.orEmpty().let { it.isBlank() || it == "/" || it.trimEnd('/') == "/v1" }
+}.getOrDefault(false)
+
 object RuntimeLaunchConfigBuilder {
     fun build(profile: ProviderProfile, authToken: String? = null, localGatewayUrl: String? = null): RuntimeLaunchConfig {
         val freeLlmApi = profile.kind == ProviderKind.CUSTOM && isFreeLlmApiEndpoint(profile.baseUrl)
