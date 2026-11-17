@@ -198,10 +198,17 @@ Mobile Harness uses Claude Code's Anthropic-compatible API protocol. You can con
 | **OpenRouter** | Gateway | Supported | Supported | `Supported` | Routes compatible models through one API key |
 | **DeepSeek** | Direct Key | Supported | Supported | `Supported` | Anthropic-compatible endpoint |
 | **Kimi** | Direct Key | Supported | Supported | `Supported` | Anthropic-compatible Moonshot endpoint |
+| **FreeLLMAPI** | Local Gateway | Compatible | Compatible | `Compatible` | Live Claude-compatible model catalog, routing, and optional prompt compression |
 | **Custom API** | Endpoint Override | Compatible | Compatible | `Experimental` | User-configured gateway |
 
 > [!NOTE]
 > API keys are stored with hardware-backed Android Keystore AES-256-GCM encryption. Antigravity Google OAuth credentials are created and retained only by the official `agy` CLI in its persistent Linux home; Mobile Harness never reads or copies its tokens.
+
+### FreeLLMAPI on Android
+
+In **Settings → AI provider → Custom API**, use **FreeLLMAPI preset**, save the unified FreeLLMAPI key, then discover and select a model from the live catalog (including gateway-specific Claude model IDs). The **Open app** shortcut launches the official FreeLLMAPI Android app when installed; enable its API Server there and use the local URL it displays. The Termux server's default port is `3001`.
+
+For lower usage, Mobile Harness keeps the chosen model for the main Claude Code session while routing Claude's small/background and sub-agent roles to `claude-haiku-latest`. It also sends FreeLLMAPI's `X-FreeLLM-Compress: standard` and `X-FreeLLM-Task-Type: code` hints. Prompt compression must be enabled in FreeLLMAPI's own settings; the gateway remains in control of the effective compression level.
 
 ### Coding agents
 
