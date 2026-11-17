@@ -165,7 +165,7 @@ class FreeLlmApiService : Service() {
                 }
                 check(!process.isAlive) { "FreeLLMAPI installation was interrupted." }
                 check(process.exitValue() == 0) {
-                    "FreeLLMAPI installation failed. " + log.readTailText(1_200).takeLast(800)
+                    "FreeLLMAPI installation failed. " + log.readFreeLlmApiTailText(1_200).takeLast(800)
                 }
                 check(FreeLlmApiController.isInstalled(this@FreeLlmApiService)) {
                     "FreeLLMAPI build finished but its server/dashboard files are incomplete."
@@ -247,7 +247,7 @@ class FreeLlmApiService : Service() {
                     false
                 }
                 check(ready) {
-                    val detail = log.readTailText(1_400).takeLast(900).ifBlank {
+                    val detail = log.readFreeLlmApiTailText(1_400).takeLast(900).ifBlank {
                         "The server exited before becoming ready."
                     }
                     "FreeLLMAPI did not start: " + detail
@@ -338,7 +338,7 @@ class FreeLlmApiService : Service() {
     private fun isHealthy(): Boolean = isGatewayHealthy()
 
     private fun updateInstallNotification(log: File) {
-        val marker = log.readTailText(4096).lineSequence()
+        val marker = log.readFreeLlmApiTailText(4096).lineSequence()
             .map(String::trim)
             .lastOrNull { it.startsWith("[MH]") }
             ?.removePrefix("[MH]")?.trim()
@@ -504,7 +504,7 @@ class FreeLlmApiService : Service() {
     }
 }
 
-private fun File.readTailText(maxBytes: Int): String = runCatching {
+private fun File.readFreeLlmApiTailText(maxBytes: Int): String = runCatching {
     if (!isFile || length() <= 0L) return@runCatching ""
     val bytes = minOf(length(), maxBytes.toLong()).toInt()
     RandomAccessFile(this, "r").use { file ->
