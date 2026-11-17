@@ -18,6 +18,21 @@ class FreeLlmApiLaunchConfigTest {
     }
 
     @Test
+    fun FreeLlmApiRequiresItsUnifiedKeyButOtherCustomServersKeepPlaceholderSupport() {
+        val freeLlmApi = ProviderProfile(
+            kind = ProviderKind.CUSTOM,
+            baseUrl = "http://127.0.0.1:3001",
+        )
+        val customServer = ProviderProfile(
+            kind = ProviderKind.CUSTOM,
+            baseUrl = "http://127.0.0.1:8080",
+        )
+
+        assertEquals("", localServerPlaceholderKey(freeLlmApi))
+        assertEquals("no-key-required", localServerPlaceholderKey(customServer))
+    }
+
+    @Test
     fun routesFreeLlmApiBackgroundWorkToCheaperClaudeAlias() {
         val profile = ProviderProfile(
             kind = ProviderKind.CUSTOM,
