@@ -2,6 +2,7 @@ package com.jarves.mh.runtime
 
 import com.jarves.mh.model.ChatMessage
 import com.jarves.mh.model.ChangeItem
+import com.jarves.mh.model.ProviderKind
 import com.jarves.mh.model.ProviderProfile
 import com.jarves.mh.model.ProjectKind
 import com.jarves.mh.model.RuntimeEvent
