@@ -29,11 +29,11 @@ class FreeLlmApiLaunchConfigTest {
         val env = launch.environment
 
         assertEquals("claude-opus-5.5", env["ANTHROPIC_MODEL"])
-        assertEquals("claude-opus-latest", env["ANTHROPIC_DEFAULT_OPUS_MODEL"])
-        assertEquals("claude-sonnet-latest", env["ANTHROPIC_DEFAULT_SONNET_MODEL"])
-        assertEquals("claude-haiku-latest", env["ANTHROPIC_DEFAULT_HAIKU_MODEL"])
-        assertEquals("claude-haiku-latest", env["ANTHROPIC_SMALL_MODEL"])
-        assertEquals("claude-haiku-latest", env["CLAUDE_CODE_SUBAGENT_MODEL"])
+        assertEquals("claude-opus-4-5", env["ANTHROPIC_DEFAULT_OPUS_MODEL"])
+        assertEquals("claude-sonnet-4-5", env["ANTHROPIC_DEFAULT_SONNET_MODEL"])
+        assertEquals("claude-haiku-4-5", env["ANTHROPIC_DEFAULT_HAIKU_MODEL"])
+        assertEquals("claude-haiku-4-5", env["ANTHROPIC_SMALL_MODEL"])
+        assertEquals("claude-haiku-4-5", env["CLAUDE_CODE_SUBAGENT_MODEL"])
         assertTrue(env["ANTHROPIC_CUSTOM_HEADERS"].orEmpty().contains("X-FreeLLM-Compress: standard"))
         assertTrue(env["ANTHROPIC_CUSTOM_HEADERS"].orEmpty().contains("X-FreeLLM-Task-Type: code"))
     }
