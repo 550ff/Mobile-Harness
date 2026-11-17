@@ -938,7 +938,7 @@ private fun ConnectionSettings(
         }
     }
 
-    if (selectedKind == ProviderKind.CUSTOM) {
+    if (selectedKind == ProviderKind.CUSTOM && state.agentKind == AgentKind.CLAUDE_CODE) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
