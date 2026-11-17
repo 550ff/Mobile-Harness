@@ -18,7 +18,7 @@ class FreeLlmApiLaunchConfigTest {
     }
 
     @Test
-    fun FreeLlmApiRequiresItsUnifiedKeyButOtherCustomServersKeepPlaceholderSupport() {
+    fun freeLlmApiRequiresItsUnifiedKeyButOtherCustomServersKeepPlaceholderSupport() {
         val freeLlmApi = ProviderProfile(
             kind = ProviderKind.CUSTOM,
             baseUrl = "http://127.0.0.1:3001",
