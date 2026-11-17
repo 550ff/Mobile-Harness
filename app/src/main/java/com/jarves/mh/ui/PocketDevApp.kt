@@ -263,6 +263,11 @@ import com.jarves.mh.network.DiscoveredModel
 import com.jarves.mh.network.ModelDiscoveryResult
 import com.jarves.mh.network.GitHubRepository
 import com.jarves.mh.ui.theme.PocketBlue
+import com.jarves.mh.ui.theme.SpaceMd
+import com.jarves.mh.ui.theme.SpaceLg
+import com.jarves.mh.ui.theme.SpaceSm
+import com.jarves.mh.ui.theme.SpaceXs
+import com.jarves.mh.ui.theme.SpaceXl
 import com.jarves.mh.ui.theme.PocketGreen
 import com.jarves.mh.ui.theme.PocketOrange
 import java.io.ByteArrayInputStream
