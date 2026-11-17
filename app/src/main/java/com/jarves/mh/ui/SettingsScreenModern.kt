@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -870,6 +871,16 @@ private fun ConnectionSettings(
     val context = LocalContext.current
     var providerExpanded by rememberSaveable { mutableStateOf(false) }
     var addKeyExpanded by rememberSaveable(savedKeys.isEmpty()) { mutableStateOf(savedKeys.isEmpty()) }
+    var showModelPicker by rememberSaveable { mutableStateOf(false) }
+    var requestedModelDiscovery by remember { mutableStateOf(false) }
+    var modelSearch by rememberSaveable { mutableStateOf("") }
+
+    LaunchedEffect(isDiscovering, models) {
+        if (requestedModelDiscovery && !isDiscovering) {
+            showModelPicker = models.isNotEmpty()
+            requestedModelDiscovery = false
+        }
+    }
     Surface(color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f), shape = RoundedCornerShape(14.dp)) {
         Row(Modifier.fillMaxWidth().padding(13.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.size(8.dp).background(
@@ -998,11 +1009,72 @@ private fun ConnectionSettings(
     }
     Text(stringResource(R.string.st_model), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant)
     OutlinedTextField(model, onModel, label = { Text(stringResource(R.string.provider_model_id)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
-    OutlinedButton(onClick = onModels, enabled = baseUrl.isNotBlank() && apiKey.isNotBlank() && !isDiscovering, modifier = Modifier.fillMaxWidth().height(50.dp)) {
-        if (isDiscovering) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
-        else Icon(if (models.isEmpty()) Icons.Default.Search else Icons.Default.KeyboardArrowDown, null, Modifier.size(18.dp))
-        Spacer(Modifier.width(7.dp))
-        Text(if (models.isEmpty()) stringResource(R.string.provider_find_models) else stringResource(R.string.provider_available_models_count, models.size))
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+        OutlinedButton(
+            onClick = {
+                if (models.isNotEmpty()) showModelPicker = true
+                else {
+                    requestedModelDiscovery = true
+                    onModels()
+                }
+            },
+            enabled = baseUrl.isNotBlank() && apiKey.isNotBlank() && !isDiscovering,
+            modifier = Modifier.weight(1f).height(50.dp),
+        ) {
+            if (isDiscovering) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
+            else Icon(if (models.isEmpty()) Icons.Default.Search else Icons.Default.KeyboardArrowDown, null, Modifier.size(18.dp))
+            Spacer(Modifier.width(7.dp))
+            Text(if (models.isEmpty()) stringResource(R.string.provider_find_models) else stringResource(R.string.provider_available_models_count, models.size))
+        }
+        IconButton(onClick = { requestedModelDiscovery = true; onModels() }, enabled = baseUrl.isNotBlank() && apiKey.isNotBlank() && !isDiscovering) {
+            Icon(Icons.Default.Refresh, stringResource(R.string.provider_refresh_models))
+        }
+    }
+    if (showModelPicker) {
+        AlertDialog(
+            onDismissRequest = { showModelPicker = false },
+            title = { Text(stringResource(R.string.st_choose_model)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = modelSearch,
+                        onValueChange = { modelSearch = it },
+                        label = { Text(stringResource(R.string.st_search_model_or_custom)) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    val filteredModels = models.filter {
+                        modelSearch.isBlank() ||
+                            it.id.contains(modelSearch, ignoreCase = true) ||
+                            it.displayName.contains(modelSearch, ignoreCase = true)
+                    }
+                    LazyColumn(Modifier.fillMaxWidth().heightIn(max = 380.dp)) {
+                        items(filteredModels, key = { it.id }) { model ->
+                            Row(
+                                Modifier.fillMaxWidth().clickable {
+                                    onModel(model.id)
+                                    modelSearch = ""
+                                    showModelPicker = false
+                                }.padding(vertical = 10.dp, horizontal = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Column(Modifier.weight(1f)) {
+                                    Text(model.displayName, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                                    Text(model.id, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
+                                }
+                                if (model.isFree) Text(stringResource(R.string.st_free), color = PocketOrange, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                            }
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f))
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showModelPicker = false; modelSearch = "" }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            },
+        )
     }
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
