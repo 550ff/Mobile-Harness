@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - fix/remove-claude-task-turn-cap
+      - test/github-runtime-path-coverage
   pull_request:
     branches:
       - main
