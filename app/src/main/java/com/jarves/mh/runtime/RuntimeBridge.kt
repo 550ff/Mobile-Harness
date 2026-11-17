@@ -129,6 +129,7 @@ object RuntimeLaunchConfigBuilder {
                 environment["ANTHROPIC_DEFAULT_SONNET_MODEL"] = "claude-sonnet-4-5"
                 environment["ANTHROPIC_DEFAULT_HAIKU_MODEL"] = "claude-haiku-4-5"
                 environment["ANTHROPIC_SMALL_MODEL"] = "claude-haiku-4-5"
+                environment["ANTHROPIC_FAST_MODEL"] = "claude-haiku-4-5"
                 environment["CLAUDE_CODE_SUBAGENT_MODEL"] = "claude-haiku-4-5"
                 environment["CLAUDE_CODE_GATEWAY_MODEL_DISCOVERY_TIMEOUT_MS"] = "10000"
                 // FreeLLMAPI applies these request-side hints only when compression is
