@@ -206,9 +206,9 @@ Mobile Harness uses Claude Code's Anthropic-compatible API protocol. You can con
 
 ### FreeLLMAPI on Android
 
-In **Settings → AI provider → Custom API**, use **FreeLLMAPI preset**, save the unified FreeLLMAPI key, then discover and select a model from the live catalog (including gateway-specific Claude model IDs). The **Open app** shortcut launches the official FreeLLMAPI Android app when installed; enable its API Server there and use the local URL it displays. The Termux server's default port is `3001`.
+In **Settings → AI provider → Custom API**, use **FreeLLMAPI preset**, save the unified FreeLLMAPI key, then discover the gateway's Claude family aliases. The **Open app** shortcut launches the official FreeLLMAPI Android app when installed; enable its API Server there and use the local URL it displays. The Termux server's default port is `3001`.
 
-For lower usage, Mobile Harness keeps the chosen model for the main Claude Code session while routing Claude's small/background and sub-agent roles to `claude-haiku-latest`. It also sends FreeLLMAPI's `X-FreeLLM-Compress: standard` and `X-FreeLLM-Task-Type: code` hints. Prompt compression must be enabled in FreeLLMAPI's own settings; the gateway remains in control of the effective compression level.
+To route Opus requests to **Opus 5.5**, open FreeLLMAPI → **Keys → Anthropic model mapping → Opus** and pin the Opus 5.5 catalog model. Mobile Harness selects the gateway's advertised Opus/Sonnet/Haiku aliases; FreeLLMAPI resolves those aliases to the actual catalog model or its auto-router. For lower usage, the selected main model is preserved while small/background and sub-agent work uses the Haiku family. Harness also sends FreeLLMAPI's `X-FreeLLM-Compress: standard` and `X-FreeLLM-Task-Type: code` hints. Prompt compression must be enabled in FreeLLMAPI's own settings; the gateway remains in control of the effective compression level.
 
 ### Coding agents
 
