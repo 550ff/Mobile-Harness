@@ -33,6 +33,7 @@ class FreeLlmApiLaunchConfigTest {
         assertEquals("claude-sonnet-4-5", env["ANTHROPIC_DEFAULT_SONNET_MODEL"])
         assertEquals("claude-haiku-4-5", env["ANTHROPIC_DEFAULT_HAIKU_MODEL"])
         assertEquals("claude-haiku-4-5", env["ANTHROPIC_SMALL_MODEL"])
+        assertEquals("claude-haiku-4-5", env["ANTHROPIC_FAST_MODEL"])
         assertEquals("claude-haiku-4-5", env["CLAUDE_CODE_SUBAGENT_MODEL"])
         assertTrue(env["ANTHROPIC_CUSTOM_HEADERS"].orEmpty().contains("X-FreeLLM-Compress: standard"))
         assertTrue(env["ANTHROPIC_CUSTOM_HEADERS"].orEmpty().contains("X-FreeLLM-Task-Type: code"))
