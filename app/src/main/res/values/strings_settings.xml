@@ -112,4 +112,7 @@
     <string name="st_update_channel_overridden">Overridden · debug only</string>
     <string name="st_use_and_check">Use &amp; check</string>
     <string name="st_use_custom_model_id">Use custom model ID:</string>
+    <string name="st_use_freellmapi_preset">FreeLLMAPI preset</string>
+    <string name="st_open_freellmapi">Open app</string>
+    <string name="st_freellmapi_connection_help">Use the unified FreeLLMAPI key. Termux uses port 3001 by default; if using the Android app, enter the local API URL shown in its API Server screen. Enable prompt compression in FreeLLMAPI settings to apply the token-saving request hint.</string>
 </resources>
