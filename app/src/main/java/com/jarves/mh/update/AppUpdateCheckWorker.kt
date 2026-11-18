@@ -11,7 +11,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.jarves.mh.MainActivity
-import com.jarves.mh.R
+import kotlinx.coroutines.CancellationException
 
 /** Background stable-release check. It never silently downloads or installs an APK. */
 class AppUpdateCheckWorker(
@@ -20,9 +20,13 @@ class AppUpdateCheckWorker(
 ) : CoroutineWorker(appContext, params) {
 
     override suspend fun doWork(): Result {
-        val update = runCatching { AppUpdater(applicationContext).check() }
-            .getOrElse { return Result.retry() }
-            ?: return Result.success()
+        val update = try {
+            AppUpdater(applicationContext).check()
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            return Result.retry()
+        } ?: return Result.success()
 
         val preferences = applicationContext.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
         val lastNotifiedVersion = preferences.getLong(KEY_LAST_NOTIFIED_VERSION, 0L)
@@ -42,7 +46,7 @@ class AppUpdateCheckWorker(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(android.R.drawable.stat_sys_download_done)
             .setContentTitle("Mobile Harness update available")
             .setContentText("Version ${update.versionName} is ready to review in the app.")
             .setStyle(NotificationCompat.BigTextStyle().bigText(update.notes.ifBlank {

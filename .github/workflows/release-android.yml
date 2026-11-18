@@ -79,9 +79,12 @@ jobs:
           APK="$(find app/build/outputs/apk/online/release -maxdepth 1 -name '*.apk' -type f | head -n 1)"
           test -n "$APK"
           BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n 1)"
+          VERSION_CODE="$(sed -nE 's/^[[:space:]]*versionCode = ([0-9]+).*/\\1/p' app/build.gradle.kts | head -n 1)"
+          VERSION_NAME="$(sed -nE 's/^[[:space:]]*versionName = "([^"]+)".*/\\1/p' app/build.gradle.kts | head -n 1)"
+          test -n "$VERSION_CODE" && test -n "$VERSION_NAME"
           "$BUILD_TOOLS/apksigner" verify --verbose "$APK"
           BADGING="$("$BUILD_TOOLS/aapt" dump badging "$APK")"
-          echo "$BADGING" | grep -F "package: name='com.jarves.mh' versionCode='12' versionName='1.0.11'" >/dev/null
+          echo "$BADGING" | grep -F "package: name='com.jarves.mh' versionCode='$VERSION_CODE' versionName='$VERSION_NAME'" >/dev/null
           echo "apk=$APK" >> "$GITHUB_OUTPUT"
 
       - name: Create release manifest
