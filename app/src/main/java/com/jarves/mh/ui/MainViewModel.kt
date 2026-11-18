@@ -2268,13 +2268,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun checkForAppUpdate(force: Boolean = false) {
-        if (!force && System.currentTimeMillis() - preferences.lastAppUpdateCheckMillis < 24L * 60L * 60L * 1000L) return
+        // Check more often than the old 24-hour window, without polling on recomposition.
+        if (!force && System.currentTimeMillis() - preferences.lastAppUpdateCheckMillis < 6L * 60L * 60L * 1000L) return
         viewModelScope.launch(Dispatchers.IO) {
-            val update = runCatching { appUpdater().check() }.getOrNull()
-            preferences.lastAppUpdateCheckMillis = System.currentTimeMillis()
-            if (update != null) {
-                _state.update {
-                    it.copy(appUpdate = update, appUpdateStatus = AppUpdateStatus.AVAILABLE, appUpdateError = null)
+            runCatching { appUpdater().check() }.onSuccess { update ->
+                // Failed network/manifest requests do not consume the next check window.
+                preferences.lastAppUpdateCheckMillis = System.currentTimeMillis()
+                if (update != null) {
+                    _state.update {
+                        it.copy(appUpdate = update, appUpdateStatus = AppUpdateStatus.AVAILABLE, appUpdateError = null)
+                    }
                 }
             }
         }
