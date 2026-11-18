@@ -45,9 +45,9 @@ Before switching to the first stable release:
 
 1. Open Mobile Harness → Settings → Backup & Restore.
 2. Export a backup. Include credentials only in a password-protected backup and keep that password private.
-3. Install the first signed stable release. This one-time package transition may require removing the old `.custom` app first.
-4. Restore the backup and confirm projects, settings and credentials.
-5. Keep using the stable release channel. Later updates retain the same package ID and signing key and install in place.
+3. Install the first signed stable release alongside the old `.custom` debug app. The package IDs differ, so Android can keep both installed.
+4. Restore the backup into the stable app and confirm projects, settings and credentials.
+5. After verifying the stable app, optionally remove the old debug app. Later stable updates retain the same package ID and signing key and install in place.
 
 ## Runtime behavior
 
